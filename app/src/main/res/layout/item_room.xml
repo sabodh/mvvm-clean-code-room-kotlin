@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<layout xmlns:tools="http://schemas.android.com/tools"
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+
+    <data>
+        <variable
+            name="room"
+            type="com.virgin.money.data.database.entity.Room" />
+    </data>
+
+<androidx.cardview.widget.CardView
+    android:id="@+id/touchCard"
+    android:layout_width="match_parent"
+    android:layout_height="100dp"
+    android:layout_margin="5dp"
+    app:cardCornerRadius="6dp"
+    app:cardElevation="2dp">
+
+    <RelativeLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/createdAt"
+            style="@style/BlackText.Normal"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="6dp"
+            android:layout_marginTop="4dp"
+            android:padding="4dp"
+            android:ellipsize="end"
+            app:dateTime="@{room.createdAt}"
+            app:initialText="@{`Created At`}"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:padding="4dp"
+            android:id="@+id/isOccupied"
+            style="@style/BlackText.MidLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/createdAt"
+            android:layout_marginStart="6dp"
+            android:ellipsize="end"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:text="@{room.isOccupied ? `Fully occupied` : `Available`}"
+            />
+
+        <androidx.appcompat.widget.AppCompatTextView
+            android:id="@+id/maxOccupancy"
+            style="@style/BlackText.MinLevel"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_below="@+id/isOccupied"
+            android:layout_marginStart="6dp"
+            android:ellipsize="end"
+            android:padding="2dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            tools:text="@{`Max: Occupancy: `+room.maxOccupancy}" />
+    </RelativeLayout>
+
+</androidx.cardview.widget.CardView>
+</layout>

@@ -7,16 +7,16 @@ plugins {
 }
 
 android {
-    namespace 'com.virgin.money'
+    namespace 'com.contact.people'
     compileSdk 33
 
     defaultConfig {
-        applicationId "com.virgin.money"
+        applicationId "com.contact.people"
         minSdk 19
         targetSdk 33
         versionCode 1
         versionName "1.0"
-
+        multiDexEnabled true
         testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
     }
     dataBinding {
@@ -45,22 +45,36 @@ dependencies {
 
     implementation 'androidx.core:core-ktx:1.9.0'
     implementation 'androidx.appcompat:appcompat:1.6.1'
-    implementation 'com.google.android.material:material:1.8.0'
+    implementation 'com.google.android.material:material:1.9.0'
     implementation 'androidx.constraintlayout:constraintlayout:2.1.4'
+    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
+    // retrofit
     implementation 'com.squareup.retrofit2:retrofit:2.9.0'
     implementation 'com.squareup.retrofit2:converter-gson:2.9.0'
+    implementation "com.squareup.okhttp3:logging-interceptor:5.0.0-alpha.1"
 
     implementation 'androidx.lifecycle:lifecycle-extensions:2.2.0'
     implementation 'androidx.lifecycle:lifecycle-viewmodel-ktx:2.5.1'
     implementation 'androidx.lifecycle:lifecycle-runtime-ktx:2.5.1'
 
-    implementation "androidx.room:room-runtime:2.5.0"
-    implementation 'androidx.swiperefreshlayout:swiperefreshlayout:1.1.0'
+
     // use this below code to avoid - "AppDatabase_Impl does not exist" error at runtime
     kapt "androidx.room:room-compiler:2.5.0"
-
+    // room
     implementation "androidx.room:room-ktx:2.5.0"
+    implementation "androidx.room:room-runtime:2.5.0"
+
+    
+    //Koin
+    implementation "io.insert-koin:koin-core:3.2.2"
+    implementation "io.insert-koin:koin-android:3.2.2"
+    // glide
     implementation 'com.github.bumptech.glide:glide:4.12.0'
+    // Fix Duplicate class - koin error
+
+
+    // testing
     testImplementation 'junit:junit:4.13.2'
     testImplementation "org.mockito:mockito-core:3.4.6"
     testImplementation 'androidx.arch.core:core-testing:2.2.0'
@@ -68,3 +82,8 @@ dependencies {
     androidTestImplementation 'androidx.test.ext:junit:1.1.5'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.5.1'
 }
+//configurations.all {
+//    resolutionStrategy {
+//        force 'org.jetbrains.kotlin:kotlin-stdlib-jdk8:1.8.10'
+//    }
+//}

@@ -6,7 +6,7 @@
     <data>
         <variable
             name="room"
-            type="com.virgin.money.data.database.entity.Room" />
+            type="com.contacts.people.data.local.entity.Room" />
     </data>
 
 <androidx.cardview.widget.CardView

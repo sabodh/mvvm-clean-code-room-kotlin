@@ -1,4 +1,4 @@
-# mvvm-data-binding-Room-kotlin
+# contact details: mvvm-data-binding-Room-kotlin-koin
 Kotlin Android application for listing contact details.
 It is a directory app to allow staff to:
 - See all of their colleagues contact details
@@ -9,6 +9,7 @@ It is a directory app to allow staff to:
 Technologies Used
 - Used MVVM Pattern
 - Room database
+- Koin di tool
 - Retrofit for network calls
 - Android data binding
-- Shared ViewModel  
+- multiple use cases used for data fetching

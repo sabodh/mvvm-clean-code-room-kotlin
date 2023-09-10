@@ -7,7 +7,7 @@
 
         <variable
             name="profile"
-            type="com.virgin.money.data.database.entity.People" />
+            type="com.contacts.people.data.local.entity.People" />
     </data>
 
     <ScrollView

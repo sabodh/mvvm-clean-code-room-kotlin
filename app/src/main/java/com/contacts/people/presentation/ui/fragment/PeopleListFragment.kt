@@ -20,7 +20,6 @@ import com.contacts.people.utils.NetworkUtils
 import com.google.android.material.textfield.TextInputLayout
 
 import kotlinx.android.synthetic.main.fragment_people.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -74,6 +73,7 @@ class PeopleListFragment : Fragment() {
         }
         searchEdit.addTextChangedListener(searchWatcher)
         swipeRefreshLayout.setOnRefreshListener {
+            peopleViewModel.refreshData(true)
             initViewModel()
         }
     }
@@ -82,7 +82,6 @@ class PeopleListFragment : Fragment() {
      * View model invocation
      */
     private fun initViewModel() {
-        peopleViewModel.isNetworkAvailable = networkUtil.isNetworkConnected()
         peopleViewModel.getContacts()
     }
     /**
@@ -91,8 +90,7 @@ class PeopleListFragment : Fragment() {
     private fun initPeopleObserver() {
 
         lifecycleScope.launch {
-            peopleViewModel.peopleLocalList.collect{
-
+            peopleViewModel.peopleList.collect{
                 when(it){
                     is NetworkResponse.Loading -> {
                         progressBar.visibility = View.VISIBLE
@@ -103,7 +101,7 @@ class PeopleListFragment : Fragment() {
                         progressBar.visibility = View.GONE
                         swipeRefreshLayout.isRefreshing = false
                         renderPeopleList(it.data)
-                        if(!peopleViewModel.isNetworkAvailable)
+                        if(!networkUtil.isNetworkConnected())
                             (activity as MainActivity?)!!.showSnackbar("Network connection lost!.", recyclerView)
                         recyclerView.visibility = View.VISIBLE
                     }
@@ -112,6 +110,14 @@ class PeopleListFragment : Fragment() {
                         swipeRefreshLayout.isRefreshing = false
                         (activity as MainActivity?)!!.showSnackbar(it.message, recyclerView)
                     }
+                }
+            }
+        }
+        // here I used a variable used to identify the refresh status, flow can't re-collect the same value
+        lifecycleScope.launch {
+            peopleViewModel.isRefreshing.collect{
+                if(!peopleViewModel.isRefreshing.value){
+                    swipeRefreshLayout.isRefreshing = false
                 }
             }
         }

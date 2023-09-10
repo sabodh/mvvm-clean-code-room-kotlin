@@ -1,6 +1,7 @@
 package com.contacts.people.presentation.ui.fragment
 
 import android.os.Bundle
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
@@ -17,7 +18,6 @@ import com.contacts.people.presentation.ui.adapter.RoomAdapter
 import com.contacts.people.presentation.viewmodel.RoomViewModel
 import com.contacts.people.utils.NetworkUtils
 import kotlinx.android.synthetic.main.fragment_people.*
-import kotlinx.coroutines.flow.collect
 import kotlinx.coroutines.launch
 import org.koin.android.ext.android.inject
 
@@ -60,6 +60,7 @@ class RoomListFragment : Fragment() {
         )
         recyclerView.adapter = roomAdapter
         swipeRefreshLayout.setOnRefreshListener {
+            roomViewModel.refreshData(true)
             initViewModel()
         }
     }
@@ -68,7 +69,6 @@ class RoomListFragment : Fragment() {
      * Get the Room details from server
      */
     private fun initViewModel() {
-        roomViewModel.isNetworkAvailable = networkUtils.isNetworkConnected()
         roomViewModel.getRooms()
     }
 
@@ -78,7 +78,9 @@ class RoomListFragment : Fragment() {
     private fun initPeopleObserver() {
 
         lifecycleScope.launch {
-            roomViewModel.roomLocalList.collect {
+            roomViewModel.roomList.collect {
+                Log.e("here", "room triggered")
+
                 when (it) {
                     is NetworkResponse.Loading -> {
                         progressBar.visibility = View.VISIBLE
@@ -89,7 +91,7 @@ class RoomListFragment : Fragment() {
                         progressBar.visibility = View.GONE
                         swipeRefreshLayout.isRefreshing = false
                         renderPeopleList(it.data)
-                        if (!roomViewModel.isNetworkAvailable)
+                        if (!networkUtils.isNetworkConnected())
                             (activity as MainActivity?)!!.showSnackbar(
                                 "Network connection lost!.",
                                 recyclerView
@@ -106,7 +108,14 @@ class RoomListFragment : Fragment() {
             }
         }
 
-
+        // here I used a variable used to identify the refresh status, flow can't re-collect the same value
+        lifecycleScope.launch {
+            roomViewModel.isRefreshing.collect {
+                if (!roomViewModel.isRefreshing.value) {
+                    swipeRefreshLayout.isRefreshing = false
+                }
+            }
+        }
     }
 
     /**

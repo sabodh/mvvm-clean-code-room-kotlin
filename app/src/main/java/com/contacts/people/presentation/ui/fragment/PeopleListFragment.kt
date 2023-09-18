@@ -6,7 +6,9 @@ import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.contact.people.R
@@ -28,7 +30,7 @@ import org.koin.android.ext.android.inject
  */
 class PeopleListFragment : Fragment() {
     private val peopleViewModel: PeopleViewModel by inject()
-    private val networkUtil : NetworkUtils by inject()
+    private val networkUtil: NetworkUtils by inject()
     private lateinit var peopleAdapter: PeopleAdapter
     override fun onCreateView(
         inflater: LayoutInflater,
@@ -54,7 +56,7 @@ class PeopleListFragment : Fragment() {
         peopleAdapter =
             PeopleAdapter(
                 arrayListOf()
-            ){
+            ) {
                 onItemClicked(it)
             }
         recyclerView.addItemDecoration(
@@ -66,7 +68,7 @@ class PeopleListFragment : Fragment() {
         recyclerView.adapter = peopleAdapter
         // search option
 
-        val searchWatcher = object : CustomTextWatcher(){
+        val searchWatcher = object : CustomTextWatcher() {
             override fun onTextChanged(s: CharSequence?, start: Int, before: Int, count: Int) {
                 peopleAdapter.filter.filter((s.toString()))
             }
@@ -84,48 +86,60 @@ class PeopleListFragment : Fragment() {
     private fun initViewModel() {
         peopleViewModel.getContacts()
     }
+
     /**
      * Handling network call and list the item based on result
      */
     private fun initPeopleObserver() {
 
         lifecycleScope.launch {
-            peopleViewModel.peopleList.collect{
-                when(it){
-                    is NetworkResponse.Loading -> {
-                        progressBar.visibility = View.VISIBLE
-                        recyclerView.visibility = View.GONE
-                        swipeRefreshLayout.isRefreshing = false
-                    }
-                    is NetworkResponse.Success -> {
-                        progressBar.visibility = View.GONE
-                        swipeRefreshLayout.isRefreshing = false
-                        renderPeopleList(it.data)
-                        if(!networkUtil.isNetworkConnected())
-                            (activity as MainActivity?)!!.showSnackbar("Network connection lost!.", recyclerView)
-                        recyclerView.visibility = View.VISIBLE
-                    }
-                    is NetworkResponse.Error -> {
-                        progressBar.visibility = View.GONE
-                        swipeRefreshLayout.isRefreshing = false
-                        (activity as MainActivity?)!!.showSnackbar(it.message, recyclerView)
+
+            repeatOnLifecycle(Lifecycle.State.STARTED){
+
+                peopleViewModel.peopleList.collect {
+
+                    when (it) {
+                        is NetworkResponse.Loading -> {
+                            progressBar.visibility = View.VISIBLE
+                            recyclerView.visibility = View.GONE
+                            swipeRefreshLayout.isRefreshing = false
+                        }
+
+                        is NetworkResponse.Success -> {
+                            progressBar.visibility = View.GONE
+                            swipeRefreshLayout.isRefreshing = false
+                            renderPeopleList(it.data)
+                            if (!networkUtil.isNetworkConnected())
+                                (activity as MainActivity?)!!.showSnackbar(
+                                    "Network connection lost!.",
+                                    recyclerView
+                                )
+                            recyclerView.visibility = View.VISIBLE
+                        }
+
+                        is NetworkResponse.Error -> {
+                            progressBar.visibility = View.GONE
+                            swipeRefreshLayout.isRefreshing = false
+                            (activity as MainActivity?)!!.showSnackbar(it.message, recyclerView)
+                        }
                     }
                 }
             }
         }
         // here I used a variable used to identify the refresh status, flow can't re-collect the same value
         lifecycleScope.launch {
-            peopleViewModel.isRefreshing.collect{
-                if(!peopleViewModel.isRefreshing.value){
+            peopleViewModel.isRefreshing.collect {
+                if (!peopleViewModel.isRefreshing.value) {
                     swipeRefreshLayout.isRefreshing = false
                 }
             }
         }
     }
+
     /**
      * Set result received from api to recyclerview
      */
-    private fun renderPeopleList(peopleList: List<People>){
+    private fun renderPeopleList(peopleList: List<People>) {
         peopleAdapter.addData(peopleList)
         peopleAdapter.notifyDataSetChanged()
     }
@@ -133,7 +147,7 @@ class PeopleListFragment : Fragment() {
     /**
      * Selected person click event from adapter class
      */
-    fun onItemClicked(people: People){
+    fun onItemClicked(people: People) {
 //        viewModel.setData(people)
 //        (activity as MainActivity?)!!.setupDetailsFragments()
     }

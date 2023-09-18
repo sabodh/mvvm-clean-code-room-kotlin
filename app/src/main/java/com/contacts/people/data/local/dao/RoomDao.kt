@@ -10,7 +10,7 @@ import com.contacts.people.data.local.entity.Room
 interface RoomDao {
 
     @Query("SELECT * FROM room")
-    suspend fun getRooms(): List<Room>
+    fun getRooms(): List<Room>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE) // this is for avoiding conflict while inserting
     suspend fun insertRoom(users: List<Room>)

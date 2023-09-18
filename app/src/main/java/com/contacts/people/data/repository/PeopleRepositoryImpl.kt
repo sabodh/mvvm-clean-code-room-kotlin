@@ -25,6 +25,7 @@ class PeopleRepositoryImpl(
     private val peopleDao = appDatabase.peopleDao()
     private val roomDao = appDatabase.roomDao()
     override suspend fun getPeople(): Flow<NetworkResponse<List<People>>> {
+        val localPeopleList = { peopleDao.getPeople() }
         return flow {
             if (networkUtils.isNetworkConnected()) {
                 val response = networkService.getPeople()
@@ -64,7 +65,7 @@ class PeopleRepositoryImpl(
                         emit(
                             NetworkResponse.Success(
                                 NetworkCodes.SUCCESS,
-                                peopleDao.getPeople()
+                                localPeopleList()
                             )
                         )
                     }
@@ -73,7 +74,7 @@ class PeopleRepositoryImpl(
                 emit(
                     NetworkResponse.Success(
                         NetworkCodes.SUCCESS,
-                        peopleDao.getPeople()
+                        localPeopleList()
                     )
                 )
             }
@@ -84,8 +85,8 @@ class PeopleRepositoryImpl(
     }
 
     override suspend fun getRooms(): Flow<NetworkResponse<List<Room>>> {
+        val localRoomList = { roomDao.getRooms() }
         return flow {
-
             if (networkUtils.isNetworkConnected()) {
                 val response = networkService.getRooms()
                 when (response.toNetworkCode()) {
@@ -119,7 +120,7 @@ class PeopleRepositoryImpl(
                         emit(
                             NetworkResponse.Success(
                                 NetworkCodes.SUCCESS,
-                                roomDao.getRooms()
+                                localRoomList()
                             )
                         )
                     }
@@ -128,7 +129,7 @@ class PeopleRepositoryImpl(
                 emit(
                     NetworkResponse.Success(
                         NetworkCodes.SUCCESS,
-                        roomDao.getRooms()
+                        localRoomList()
                     )
                 )
             }

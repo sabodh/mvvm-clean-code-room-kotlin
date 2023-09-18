@@ -1,12 +1,13 @@
 package com.contacts.people.presentation.ui.fragment
 
 import android.os.Bundle
-import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
 import androidx.fragment.app.Fragment
+import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
+import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.DividerItemDecoration
 import androidx.recyclerview.widget.LinearLayoutManager
 import com.contact.people.R
@@ -78,31 +79,36 @@ class RoomListFragment : Fragment() {
     private fun initPeopleObserver() {
 
         lifecycleScope.launch {
-            roomViewModel.roomList.collect {
-                Log.e("here", "room triggered")
 
-                when (it) {
-                    is NetworkResponse.Loading -> {
-                        progressBar.visibility = View.VISIBLE
-                        recyclerView.visibility = View.GONE
-                        swipeRefreshLayout.isRefreshing = false
-                    }
-                    is NetworkResponse.Success -> {
-                        progressBar.visibility = View.GONE
-                        swipeRefreshLayout.isRefreshing = false
-                        renderPeopleList(it.data)
-                        if (!networkUtils.isNetworkConnected())
-                            (activity as MainActivity?)!!.showSnackbar(
-                                "Network connection lost!.",
-                                recyclerView
-                            )
-                        recyclerView.visibility = View.VISIBLE
-                    }
-                    is NetworkResponse.Error -> {
-                        progressBar.visibility = View.GONE
-                        (activity as MainActivity?)!!.showSnackbar(it.message, recyclerView)
-                        swipeRefreshLayout.isRefreshing = false
+            repeatOnLifecycle(Lifecycle.State.STARTED) {
 
+                roomViewModel.roomList.collect {
+
+                    when (it) {
+                        is NetworkResponse.Loading -> {
+                            progressBar.visibility = View.VISIBLE
+                            recyclerView.visibility = View.GONE
+                            swipeRefreshLayout.isRefreshing = false
+                        }
+
+                        is NetworkResponse.Success -> {
+                            progressBar.visibility = View.GONE
+                            swipeRefreshLayout.isRefreshing = false
+                            renderPeopleList(it.data)
+                            if (!networkUtils.isNetworkConnected())
+                                (activity as MainActivity?)!!.showSnackbar(
+                                    "Network connection lost!.",
+                                    recyclerView
+                                )
+                            recyclerView.visibility = View.VISIBLE
+                        }
+
+                        is NetworkResponse.Error -> {
+                            progressBar.visibility = View.GONE
+                            (activity as MainActivity?)!!.showSnackbar(it.message, recyclerView)
+                            swipeRefreshLayout.isRefreshing = false
+
+                        }
                     }
                 }
             }
